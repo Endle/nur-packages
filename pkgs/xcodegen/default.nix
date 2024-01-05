@@ -7,6 +7,7 @@
 , darwin
 , xcbuild
 , cacert # Required by git during build process
+,nur
 }:
 
 stdenv.mkDerivation rec {
