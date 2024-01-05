@@ -7,7 +7,10 @@
 , darwin
 , xcbuild
 , cacert # Required by git during build process
-,nur
+, asciidoctor
+, gnused
+, tree
+, nur # for xcodegen
 }:
 
 stdenv.mkDerivation rec {
@@ -19,7 +22,6 @@ stdenv.mkDerivation rec {
     repo = "AeroSpace";
     rev = "${version}";
     sha256 = "sha256-dUnbTnsFq/q5mFFai01z+Oxx5yPGScUXFJ7PB/bEgls=";
-    # sha256 = "sha256-5N0ZNQec1DUV4rWqqOC1Aikn+RKrG8it0Ee05HG2mn4=";
   };
 
   patches = [
@@ -33,14 +35,25 @@ stdenv.mkDerivation rec {
   buildInputs = [
     swift
     swiftpm
-    #darwin.apple_sdk.frameworks.Foundation
-    #swiftPackages.XCTest
-    #swiftPackages.Foundation
+    darwin.apple_sdk.frameworks.Foundation
+    swiftPackages.XCTest
+    swiftPackages.Foundation
     xcbuild # for xcrun
     cacert
+    asciidoctor
+    gnused
+    tree
     nur.repos.endle.xcodegen
   ];
 
+
+  configurePhase = ''
+    ls
+  '';
+
+  buildPhase = ''
+    ls
+  '';
   installPhase = ''
     mkdir -p $out/bin
     cp .build/release/xcodegen $out/bin
