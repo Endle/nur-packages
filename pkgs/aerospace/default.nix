@@ -7,6 +7,7 @@
 , darwin
 , xcbuild
 , cacert # Required by git during build process
+,nur
 }:
 
 stdenv.mkDerivation rec {
@@ -37,6 +38,7 @@ stdenv.mkDerivation rec {
     #swiftPackages.Foundation
     xcbuild # for xcrun
     cacert
+    nur.repos.endle.xcodegen
   ];
 
   installPhase = ''
