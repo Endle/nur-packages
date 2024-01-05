@@ -10,14 +10,15 @@
 }:
 
 stdenv.mkDerivation rec {
-  pname = "xcodegen";
-  version = "2.38.0";
+  pname = "aerospace";
+  version = "v0.7.1-Beta";
 
   src = fetchFromGitHub {
     owner = "nikitabobko";
     repo = "AeroSpace";
     rev = "${version}";
-    sha256 = "sha256-5N0ZNQec1DUV4rWqqOC1Aikn+RKrG8it0Ee05HG2mn4=";
+    sha256 = "sha256-dUnbTnsFq/q5mFFai01z+Oxx5yPGScUXFJ7PB/bEgls=";
+    # sha256 = "sha256-5N0ZNQec1DUV4rWqqOC1Aikn+RKrG8it0Ee05HG2mn4=";
   };
 
   patches = [
@@ -31,9 +32,9 @@ stdenv.mkDerivation rec {
   buildInputs = [
     swift
     swiftpm
-    darwin.apple_sdk.frameworks.Foundation
-    swiftPackages.XCTest
-    swiftPackages.Foundation
+    #darwin.apple_sdk.frameworks.Foundation
+    #swiftPackages.XCTest
+    #swiftPackages.Foundation
     xcbuild # for xcrun
     cacert
   ];
@@ -48,7 +49,6 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://github.com/nikitabobko/AeroSpace";
-    "https://github.com/yonaskolb/XcodeGen";
     description = " an i3-like tiling window manager for macOS";
     longDescription = ''
       XcodeGen is a command line tool written in Swift that generates your Xcode project using your folder structure and a project spec.
