@@ -1,14 +1,19 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, swift
-, swiftpm
-, swiftpm2nix
-, swiftPackages
-}:
+{ lib , ... }: 
+with import <nixpkgs>
+{
+  overlays = [
+    (import (fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz"))
+  ];
+};
+let
+  rustPlatform = makeRustPlatform {
+    cargo = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
+    rustc = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
+  };
+in
 
-stdenv.mkDerivation rec {
-  pname = "xcodegen";
+rustPlatform.buildRustPackage rec {
+  pname = "postflop-solver";
   version = "v0.2.7";
 
   src = fetchFromGitHub {
@@ -18,6 +23,12 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-pOPxNHM4mseIuyyWNoU0l+dGvfURH0+9+rmzRIF0I5s=";
   };
 
+#cargoSha256 = lib.fakeSha256;
+sourceRoot="source/src-tauri";
+cargoLock = {
+	lockFile = ./src-tauri/Cargo.lock;
+	#lockFile = ./Cargo.lock;
+};
 
   nativeBuildInputs = [ 
     swift 
@@ -26,7 +37,14 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     swiftPackages.XCTest
+    libiconv
   ];
+
+  buildPhase = ''
+  	ls
+	rustc -v
+  '';
+
 
   installPhase = ''
     mkdir -p $out/bin
