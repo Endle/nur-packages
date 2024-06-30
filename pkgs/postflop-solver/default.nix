@@ -1,18 +1,9 @@
-{ lib , ... }: 
-with import <nixpkgs>
-{
-  overlays = [
-    (import (fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz"))
-  ];
-};
-let
-  rustPlatform = makeRustPlatform {
-    cargo = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
-    rustc = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
-  };
-in
+{ lib , stdenv,
+cacert,
+webkitgtk,
+nodejs_18, libiconv,rustc, cargo,fetchFromGitHub,  darwin, ... }: 
 
-rustPlatform.buildRustPackage rec {
+stdenv.mkDerivation rec {
   pname = "postflop-solver";
   version = "v0.2.7";
 
@@ -23,41 +14,58 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-pOPxNHM4mseIuyyWNoU0l+dGvfURH0+9+rmzRIF0I5s=";
   };
 
-#cargoSha256 = lib.fakeSha256;
-sourceRoot="source/src-tauri";
-cargoLock = {
-	lockFile = ./src-tauri/Cargo.lock;
-	#lockFile = ./Cargo.lock;
-};
 
   nativeBuildInputs = [ 
-    swift 
-    swiftpm
+rustc cargo
   ];
 
   buildInputs = [
-    swiftPackages.XCTest
     libiconv
+    nodejs_18
+
+    #webkitgtk
+
+    darwin.apple_sdk.frameworks.Carbon
+    darwin.apple_sdk.frameworks.Cocoa
+    darwin.apple_sdk.frameworks.Security
+          darwin.apple_sdk.frameworks.SystemConfiguration
+    darwin.apple_sdk.frameworks.WebKit
+
+	  cacert
   ];
 
+	patches = [
+		./0001-turn_off_custom_alloc.patch
+	];
   buildPhase = ''
   	ls
-	rustc -v
+	rustc --version
+	 export HOME=$(pwd)
+	npm install
+	ls
+	CI=true npm run tauri build --verbose || echo "Skip bundle"
   '';
 
 
   installPhase = ''
     mkdir -p $out/bin
-    cp .build/release/xcodegen $out/bin
+    echo Install
+    ls
+    ls src-tauri
+    ls src-tauri/target
+    ls src-tauri/target/release
+    ls src-tauri/target/release/bundle
+    ls src-tauri/target/release/bundle/macos
+    cp -r "src-tauri/target/release/bundle/macos/Desktop Postflop.app" $out/bin
   '';
 
   meta = with lib; {
-    homepage = "https://github.com/yonaskolb/XcodeGen";
-    description = "A Swift command line tool for generating your Xcode project";
+    homepage = "https://github.com/b-inary/desktop-postflop/";
+    description = "Texas Hold'em GTO solver";
     longDescription = ''
-      XcodeGen is a command line tool written in Swift that generates your Xcode project using your folder structure and a project spec.
+    	Advanced open-source Texas Hold'em GTO solver with optimized performance 
     '';
-    license = licenses.agpl3;
+    license = licenses.agpl3; # wrong
     platforms = platforms.darwin;
     maintainers = with maintainers; [ endle ];
   };
