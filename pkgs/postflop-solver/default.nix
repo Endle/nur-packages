@@ -3,6 +3,10 @@ cacert,
 webkitgtk,
 nodejs_18, libiconv,rustc, cargo,fetchFromGitHub,  darwin, ... }: 
 
+let pkgs23 = import(fetchTarball
+    ("https://codeload.github.com/NixOS/nixpkgs/zip/refs/tags/23.05")) {};
+in
+
 stdenv.mkDerivation rec {
   pname = "postflop-solver";
   version = "v0.2.7";
@@ -16,11 +20,14 @@ stdenv.mkDerivation rec {
 
 
   nativeBuildInputs = [ 
-rustc cargo
   ];
 
   buildInputs = [
-    libiconv
+  # New version of rustc breaks the dependency: `time`. Use 1.69
+    pkgs23.rustc
+    pkgs23.cargo
+    pkgs23.libiconv
+
     nodejs_18
 
     #webkitgtk
@@ -28,10 +35,10 @@ rustc cargo
     darwin.apple_sdk.frameworks.Carbon
     darwin.apple_sdk.frameworks.Cocoa
     darwin.apple_sdk.frameworks.Security
-          darwin.apple_sdk.frameworks.SystemConfiguration
+    darwin.apple_sdk.frameworks.SystemConfiguration
     darwin.apple_sdk.frameworks.WebKit
 
-	  cacert
+	cacert
   ];
 
 	patches = [
@@ -65,7 +72,7 @@ rustc cargo
     longDescription = ''
     	Advanced open-source Texas Hold'em GTO solver with optimized performance 
     '';
-    license = licenses.agpl3; # wrong
+    license = lib.licenses.agpl3Plus; # wrong
     platforms = platforms.darwin;
     maintainers = with maintainers; [ endle ];
   };
