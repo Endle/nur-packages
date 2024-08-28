@@ -19,7 +19,7 @@ stdenv.mkDerivation rec {
   };
 
 
-  nativeBuildInputs = [ 
+  nativeBuildInputs = [
   ];
 
   buildInputs = [
@@ -45,24 +45,13 @@ stdenv.mkDerivation rec {
 		./0001-turn_off_custom_alloc.patch
 	];
   buildPhase = ''
-  	ls
-	rustc --version
-	 export HOME=$(pwd)
 	npm install
-	ls
-	CI=true npm run tauri build --verbose || echo "Skip bundle"
+	CI=true npm run tauri build --verbose
   '';
 
 
   installPhase = ''
     mkdir -p $out/bin
-    echo Install
-    ls
-    ls src-tauri
-    ls src-tauri/target
-    ls src-tauri/target/release
-    ls src-tauri/target/release/bundle
-    ls src-tauri/target/release/bundle/macos
     cp -r "src-tauri/target/release/bundle/macos/Desktop Postflop.app" $out/bin
   '';
 
