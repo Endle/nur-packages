@@ -1,12 +1,13 @@
 { lib
 , stdenv
-,cacert
+, buildNpmPackage
 , fetchFromGitHub
 ,webkitgtk
 ,nodejs_18
 , libiconv
 ,rustc
 , cargo
+,cacert
 , darwin, ...
 }:
 
@@ -25,24 +26,32 @@ stdenv.mkDerivation rec {
     hash = "sha256-pOPxNHM4mseIuyyWNoU0l+dGvfURH0+9+rmzRIF0I5s=";
   };
 
+  npmDist = buildNpmPackage {
+    name = "${pname}-${version}-dist";
+    inherit src;
+
+    npmDepsHash = "sha256-HWZLicyKL2FHDjZQj9/CRwVi+uc/jHmVNxtlDuclf7s=";
+
+  };
 
 
 
   patches = [
 		./0001-turn_off_custom_alloc.patch
   ];
+  postPatch = ''
+    substituteInPlace tauri.conf.json \
+        --replace "../dist" "${npmDist}"
+  '';
 
 
   buildPhase = ''
-	npm install
-	CI=true npm run tauri build --verbose
+    ls
+	#npm install
+	#CI=true npm run tauri build --verbose
   '';
 
 
-  installPhase = ''
-    mkdir -p $out/bin
-    cp -r "src-tauri/target/release/bundle/macos/Desktop Postflop.app" $out/bin
-  '';
 
   buildInputs = [
   # New version of rustc breaks the dependency: `time`. Use 1.69
