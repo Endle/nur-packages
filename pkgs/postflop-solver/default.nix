@@ -1,26 +1,48 @@
-{ lib , stdenv,
-cacert,
-webkitgtk,
-nodejs_18, libiconv,rustc, cargo,fetchFromGitHub,  darwin, ... }: 
+{ lib
+, stdenv
+,cacert
+, fetchFromGitHub
+,webkitgtk
+,nodejs_18
+, libiconv
+,rustc
+, cargo
+, darwin, ...
+}:
 
 let pkgs23 = import(fetchTarball
     ("https://codeload.github.com/NixOS/nixpkgs/zip/refs/tags/23.05")) {};
 in
 
 stdenv.mkDerivation rec {
-  pname = "postflop-solver";
-  version = "v0.2.7";
+  pname = "desktop-postflop";
+  version = "0.2.7";
 
   src = fetchFromGitHub {
     owner = "b-inary";
     repo = "desktop-postflop";
-    rev = "${version}";
-    sha256 = "sha256-pOPxNHM4mseIuyyWNoU0l+dGvfURH0+9+rmzRIF0I5s=";
+    rev = "v${version}";
+    hash = "sha256-pOPxNHM4mseIuyyWNoU0l+dGvfURH0+9+rmzRIF0I5s=";
   };
 
 
-  nativeBuildInputs = [
+
+
+  patches = [
+		./0001-turn_off_custom_alloc.patch
   ];
+
+
+  buildPhase = ''
+	npm install
+	CI=true npm run tauri build --verbose
+  '';
+
+
+  installPhase = ''
+    mkdir -p $out/bin
+    cp -r "src-tauri/target/release/bundle/macos/Desktop Postflop.app" $out/bin
+  '';
 
   buildInputs = [
   # New version of rustc breaks the dependency: `time`. Use 1.69
@@ -41,28 +63,13 @@ stdenv.mkDerivation rec {
 	cacert
   ];
 
-	patches = [
-		./0001-turn_off_custom_alloc.patch
-	];
-  buildPhase = ''
-	npm install
-	CI=true npm run tauri build --verbose
-  '';
-
-
-  installPhase = ''
-    mkdir -p $out/bin
-    cp -r "src-tauri/target/release/bundle/macos/Desktop Postflop.app" $out/bin
-  '';
-
   meta = with lib; {
-    homepage = "https://github.com/b-inary/desktop-postflop/";
-    description = "Texas Hold'em GTO solver";
-    longDescription = ''
-    	Advanced open-source Texas Hold'em GTO solver with optimized performance 
-    '';
-    license = lib.licenses.agpl3Plus; # wrong
+    changelog = "https://github.com/b-inary/desktop-postflop/releases/tag/${src.rev}";
+    description = "Free, open-source GTO solver for Texas hold'em poker";
+    homepage = "https://github.com/b-inary/desktop-postflop";
+    license = lib.licenses.agpl3Plus;
+    mainProgram = "desktop-postflop";
+    maintainers = with lib.maintainers; [ endle ];
     platforms = platforms.darwin;
-    maintainers = with maintainers; [ endle ];
   };
 }
