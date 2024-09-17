@@ -32,9 +32,13 @@ stdenv.mkDerivation rec {
 
     npmDepsHash = "sha256-HWZLicyKL2FHDjZQj9/CRwVi+uc/jHmVNxtlDuclf7s=";
 
+    installPhase = ''
+      mkdir -p $out
+      cp -r dist/* $out
+    '';
   };
 
-
+  sourceRoot = "${src.name}/src-tauri";
 
   patches = [
 		./0001-turn_off_custom_alloc.patch
@@ -42,14 +46,9 @@ stdenv.mkDerivation rec {
   postPatch = ''
     substituteInPlace tauri.conf.json \
         --replace "../dist" "${npmDist}"
-  '';
+ '';
 
 
-  buildPhase = ''
-    ls
-	#npm install
-	#CI=true npm run tauri build --verbose
-  '';
 
 
 
@@ -71,6 +70,19 @@ stdenv.mkDerivation rec {
 
 	cacert
   ];
+
+#  buildPhase = ''
+#    ls
+#	npm install
+#	CI=true npm run tauri build --verbose
+#  '';
+
+  postInstall = ''
+	ls
+	pwd
+	ls $out
+    install -Dm644 ${src}/public/favicon.png $out/share/icons/hicolor/128x128/apps/desktop-postflop.png
+  '';
 
   meta = with lib; {
     changelog = "https://github.com/b-inary/desktop-postflop/releases/tag/${src.rev}";
