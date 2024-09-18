@@ -1,5 +1,5 @@
 { lib
-, stdenv
+, rustPlatform
 , buildNpmPackage
 , fetchFromGitHub
 ,webkitgtk
@@ -8,6 +8,7 @@
 ,rustc
 , cargo
 ,cacert
+, stdenv
 , darwin, ...
 }:
 
@@ -15,7 +16,8 @@ let pkgs23 = import(fetchTarball
     ("https://codeload.github.com/NixOS/nixpkgs/zip/refs/tags/23.05")) {};
 in
 
-stdenv.mkDerivation rec {
+#stdenv.mkDerivation
+rustPlatform.buildRustPackage rec {
   pname = "desktop-postflop";
   version = "0.2.7";
 
@@ -40,12 +42,20 @@ stdenv.mkDerivation rec {
 
   sourceRoot = "${src.name}/src-tauri";
 
+
+  cargoLock = {
+    lockFile = ./Cargo.lock;
+    outputHashes = {
+      "postflop-solver-0.1.0" = "sha256-coEl09eMbQqSos1sqWLnfXfhujSTsnVnOlOQ+JbdFWY=";
+    };
+  };
+
   patches = [
 		./0001-turn_off_custom_alloc.patch
   ];
   postPatch = ''
-    substituteInPlace tauri.conf.json \
-        --replace "../dist" "${npmDist}"
+    #substituteInPlace tauri.conf.json \
+     #   --replace "../dist" "${npmDist}"
  '';
 
 
@@ -71,11 +81,12 @@ stdenv.mkDerivation rec {
 	cacert
   ];
 
-#  buildPhase = ''
-#    ls
-#	npm install
-#	CI=true npm run tauri build --verbose
-#  '';
+  #buildPhase = ''
+    #ls
+	#cat tauri.conf.json
+	#npm install
+	#CI=true npm run tauri build --verbose
+  #'';
 
   postInstall = ''
 	ls
