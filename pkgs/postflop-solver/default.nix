@@ -46,14 +46,20 @@ rustPlatform.buildRustPackage rec {
   cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
+      #"postflop-solver-0.1.0" = "sha256-coEl09eMbQqSos1sqWLnfXfhujSTsnVnOlOQ+JbdFWY=";
       "postflop-solver-0.1.0" = "sha256-coEl09eMbQqSos1sqWLnfXfhujSTsnVnOlOQ+JbdFWY=";
+    #    "postflop-solver-0.1.0" = "";
     };
   };
 
+ cargoPatches = [ ./0002-update-cargo-dependency.patch ];
   patches = [
 		./0001-turn_off_custom_alloc.patch
   ];
   postPatch = ''
+  rustc --version
+  ls
+  pwd
     #substituteInPlace tauri.conf.json \
      #   --replace "../dist" "${npmDist}"
  '';
