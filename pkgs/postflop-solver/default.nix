@@ -22,10 +22,10 @@ rustPlatform.buildRustPackage rec {
   version = "0.2.7";
 
   src = fetchFromGitHub {
-    owner = "b-inary";
+    owner = "Endle";
     repo = "desktop-postflop";
-    rev = "v${version}";
-    hash = "sha256-pOPxNHM4mseIuyyWNoU0l+dGvfURH0+9+rmzRIF0I5s=";
+    rev = "5e8acbea194a9efb40fa62ee1aedfd8af2a15418";
+    hash = "sha256-g7wTKF67lJlkO0+dq066LcpehMahcSeIpf9A80aJO3Y=";
   };
 
   npmDist = buildNpmPackage {
@@ -46,16 +46,10 @@ rustPlatform.buildRustPackage rec {
   cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
-      #"postflop-solver-0.1.0" = "sha256-coEl09eMbQqSos1sqWLnfXfhujSTsnVnOlOQ+JbdFWY=";
       "postflop-solver-0.1.0" = "sha256-coEl09eMbQqSos1sqWLnfXfhujSTsnVnOlOQ+JbdFWY=";
-    #    "postflop-solver-0.1.0" = "";
     };
   };
 
- cargoPatches = [ ./0002-update-cargo-dependency.patch ];
-  patches = [
-		./0001-turn_off_custom_alloc.patch
-  ];
   postPatch = ''
   rustc --version
   ls
